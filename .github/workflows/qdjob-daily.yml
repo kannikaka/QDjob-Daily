@@ -158,6 +158,17 @@ jobs:
           cd /tmp/qdjob-run
           ./QDjob > /dev/null 2>&1
 
+      - name: Check logs for cookie failure
+        if: always()
+        run: |
+          if [ -d /tmp/qdjob-run/logs ]; then
+            if grep -r -i -E "cookie.*失效|cookie.*过期|cookie.*expired|登录.*失效|token.*expired|重新登录|请重新登录" /tmp/qdjob-run/logs/ 2>/dev/null; then
+              echo "::error::❌ Cookie 已失效！请重新登录获取新的 Cookie，然后更新 config.json 和 cookies/"
+              exit 1
+            fi
+          fi
+          echo "✅ Cookie 正常"
+
       - name: Push logs to data repository
         if: always()
         env:
